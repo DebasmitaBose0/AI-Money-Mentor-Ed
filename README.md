@@ -125,4 +125,10 @@ pip install -r requirements.txt
 # Run the application
 python app.py
 
+### My ELUSOC 2026 Admin Badges!
+
+<a href="https://edulinkup.dev/elusoc/profile/omroy07">
+
+</a>
+
 ```
