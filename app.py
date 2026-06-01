@@ -1,24 +1,30 @@
 from flask import Flask, request, jsonify, render_template
-import yfinance as yf
+import yfinance as yf 
 import os
 from groq import Groq
+from dotenv import load_dotenv
 
-# ---------------- 🔐 SET API KEY ----------------
-os.environ["GROQ_API_KEY"] = "YOUR_API_KEY"
+# Load environment variables
+load_dotenv()
 
+# Set default API key ONLY if not already defined in environment
+if not os.getenv("GROQ_API_KEY"):
+    os.environ["GROQ_API_KEY"] = "YOUR_API_KEY"
 # ---------------- IMPORT UTILS ----------------
 from utils.sip import calculate_sip
 from utils.tax import calculate_tax
 from utils.pdf_parser import extract_income
 from utils.money_score import calculate_money_score
 from utils.multi_agent import run_multi_agent
+from utils.stock import get_stock_price
+from utils.expense_track import calculate_expense, insights
 
 app = Flask(__name__)
 
 # ---------------- INIT GROQ ----------------
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-
+print("Groq key:", client)
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
@@ -66,20 +72,8 @@ def sip():
 def portfolio():
     try:
         stock = request.json["stock"].upper()
-
-        # Add .NS for Indian stocks (important!)
-        if not stock.endswith(".NS"):
-            stock = stock + ".NS"
-
-        data = yf.Ticker(stock)
-        hist = data.history(period="5d")
-
-        if hist.empty:
-            return jsonify({"error": "Invalid stock symbol"})
-
-        price = hist["Close"].iloc[-1]
-
-        return jsonify({"price": round(price, 2)})
+        result = get_stock_price(stock)
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"error": str(e)})
@@ -112,7 +106,7 @@ def upload():
 def run_agent_route():
     try:
         query = request.json["query"]
-        response = run_multi_agent(query)
+        response = run_multi_agent(client, query)
         return jsonify({"response": response})
 
     except Exception as e:
@@ -151,6 +145,35 @@ def money_score():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+
+# Expense Tracker Features
+
+expense_data = []
+@app.route("/add_expense", methods=["POST"])
+def add_expense():
+    try:
+        data = request.json
+        expense = {
+            "category": data["category"],
+            "amount": float(data["amount"]),
+            "date": data["date"]
+        }
+        expense_data.append(expense)
+        return jsonify({"status": "success"})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}),400
+
+@app.route("/calculate", methods=["GET"])
+def calculate():
+    result = calculate_expense(expense_data)
+    result["expenses"] = expense_data
+    return jsonify(result)
+
+@app.route("/insights", methods=["GET"])
+def expense_insights():
+    result =insights(client,expense_data)
+    return jsonify(result)
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
