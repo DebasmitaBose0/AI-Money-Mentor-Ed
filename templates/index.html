@@ -444,7 +444,7 @@
 
     /* ── INPUTS ───────────────────────────────────── */
     input[type="text"],
-    input[type="number"],
+    input[type="number" required min="0"],
     input[type="file"],
     textarea {
       width: 100%;
@@ -1274,12 +1274,12 @@
         <div class="card">
           <div class="card-title">Enter your financial details</div>
           <div class="form-grid">
-            <div><label>Monthly Income (₹)</label><input type="number" id="s_income" placeholder="e.g. 80000"></div>
-            <div><label>Monthly Expenses (₹)</label><input type="number" id="s_expenses" placeholder="e.g. 40000"></div>
-            <div><label>Monthly Savings (₹)</label><input type="number" id="s_savings" placeholder="e.g. 20000"></div>
-            <div><label>Investments (₹)</label><input type="number" id="s_invest" placeholder="e.g. 500000"></div>
-            <div><label>Total Debt (₹)</label><input type="number" id="s_debt" placeholder="e.g. 100000"></div>
-            <div><label>Emergency Fund (₹)</label><input type="number" id="s_emergency" placeholder="e.g. 240000"></div>
+            <div><label>Monthly Income (₹)</label><input type="number" required min="0" id="s_income" placeholder="e.g. 80000"></div>
+            <div><label>Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses" placeholder="e.g. 40000"></div>
+            <div><label>Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings" placeholder="e.g. 20000"></div>
+            <div><label>Investments (₹)</label><input type="number" required min="0" id="s_invest" placeholder="e.g. 500000"></div>
+            <div><label>Total Debt (₹)</label><input type="number" required min="0" id="s_debt" placeholder="e.g. 100000"></div>
+            <div><label>Emergency Fund (₹)</label><input type="number" required min="0" id="s_emergency" placeholder="e.g. 240000"></div>
           </div>
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcScore()" id="scoreBtn">Calculate
             Money Score</button>
@@ -1295,12 +1295,12 @@
       <div class="card" style="max-width:600px">
         <div class="card-title">Enter your financial details</div>
         <div class="form-grid">
-          <div><label>Monthly Income (₹)</label><input type="number" id="s_income" placeholder="e.g. 80000"></div>
-          <div><label>Monthly Expenses (₹)</label><input type="number" id="s_expenses" placeholder="e.g. 40000"></div>
-          <div><label>Monthly Savings (₹)</label><input type="number" id="s_savings" placeholder="e.g. 20000"></div>
-          <div><label>Investments (₹)</label><input type="number" id="s_invest" placeholder="e.g. 500000"></div>
-          <div><label>Total Debt (₹)</label><input type="number" id="s_debt" placeholder="e.g. 100000"></div>
-          <div><label>Emergency Fund (months)</label><input type="number" id="s_emergency" placeholder="e.g. 6"></div>
+          <div><label>Monthly Income (₹)</label><input type="number" required min="0" id="s_income" placeholder="e.g. 80000"></div>
+          <div><label>Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses" placeholder="e.g. 40000"></div>
+          <div><label>Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings" placeholder="e.g. 20000"></div>
+          <div><label>Investments (₹)</label><input type="number" required min="0" id="s_invest" placeholder="e.g. 500000"></div>
+          <div><label>Total Debt (₹)</label><input type="number" required min="0" id="s_debt" placeholder="e.g. 100000"></div>
+          <div><label>Emergency Fund (months)</label><input type="number" required min="0" id="s_emergency" placeholder="e.g. 6"></div>
         </div>
       </div>
     </div>
@@ -1312,11 +1312,11 @@
         <div class="card">
           <div class="card-title">SIP Projection</div>
           <label>Monthly Investment (₹)</label>
-          <input type="number" id="sip_monthly" placeholder="e.g. 10000">
+          <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000">
           <label>Annual Return Rate (%)</label>
-          <input type="number" id="sip_rate" placeholder="e.g. 12">
+          <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12">
           <label>Investment Period (Years)</label>
-          <input type="number" id="sip_years" placeholder="e.g. 10">
+          <input type="number" required min="0" id="sip_years" placeholder="e.g. 10">
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()"
             id="sipBtn">Calculate</button>
           <div id="sipResult" class="result-box"></div>
@@ -1332,11 +1332,11 @@
         <div class="card" style="max-width:480px">
           <div class="card-title">SIP Projection</div>
           <label>Monthly Investment (₹)</label>
-          <input type="number" id="sip_monthly" placeholder="e.g. 10000">
+          <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000">
           <label>Annual Return Rate (%)</label>
-          <input type="number" id="sip_rate" placeholder="e.g. 12">
+          <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12">
           <label>Investment Period (Years)</label>
-          <input type="number" id="sip_years" placeholder="e.g. 10">
+          <input type="number" required min="0" id="sip_years" placeholder="e.g. 10">
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()"
             id="sipBtn">Calculate</button>
           <div id="sipResult" class="result-box"></div>
@@ -1347,11 +1347,11 @@
       <div class="card" style="max-width:480px">
         <div class="card-title">SIP Projection</div>
         <label>Monthly Investment (₹)</label>
-        <input type="number" id="sip_monthly" placeholder="e.g. 10000">
+        <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000">
         <label>Annual Return Rate (%)</label>
-        <input type="number" id="sip_rate" placeholder="e.g. 12">
+        <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12">
         <label>Investment Period (Years)</label>
-        <input type="number" id="sip_years" placeholder="e.g. 10">
+        <input type="number" required min="0" id="sip_years" placeholder="e.g. 10">
         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()"
           id="sipBtn">Calculate</button>
         <div id="sipResult" class="result-box"></div>
@@ -1395,7 +1395,7 @@
         <div class="card">
           <div class="card-title">Income Tax Calculator</div>
           <label>Gross Annual Income (₹)</label>
-          <input type="number" id="taxIncome" placeholder="e.g. 1200000">
+          <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000">
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcTax()" id="taxBtn">Calculate
             Tax</button>
           <div id="taxResult" class="result-box"></div>
@@ -1409,7 +1409,7 @@
       <div class="card" style="max-width:480px">
         <div class="card-title">Income Tax Calculator (New Regime)</div>
         <label>Annual Income (₹)</label>
-        <input type="number" id="taxIncome" placeholder="e.g. 1200000">
+        <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000">
         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcTax()" id="taxBtn">Calculate
           Tax</button>
         <div id="taxResult" class="result-box"></div>
@@ -1456,7 +1456,7 @@
           <option value="Shopping">Shopping</option>
           <option value="Other">Other</option>
         </select>
-        <input type="number" id="amount" placeholder="Amount (₹)" required>
+        <input type="number" required min="0" id="amount" placeholder="Amount (₹)" required>
         <input type="date" id="date" required>
         <button type="submit">Add Expense</button>
       </form>
@@ -1520,7 +1520,7 @@
           <div class="card-title">Assets (What you own)</div>
           <div class="chat-input-row" style="margin-bottom: 15px;">
             <input type="text" id="assetName" placeholder="Asset name (e.g. HDFC Savings)">
-            <input type="number" id="assetAmt" placeholder="Amount (₹)">
+            <input type="number" required min="0" id="assetAmt" placeholder="Amount (₹)">
             <button class="btn btn-gold" onclick="addNWItem('asset')">Add</button>
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text);">
@@ -1540,7 +1540,7 @@
           <div class="card-title">Liabilities (What you owe)</div>
           <div class="chat-input-row" style="margin-bottom: 15px;">
             <input type="text" id="liabName" placeholder="Liability name (e.g. Home Loan)">
-            <input type="number" id="liabAmt" placeholder="Amount (₹)">
+            <input type="number" required min="0" id="liabAmt" placeholder="Amount (₹)">
             <button class="btn btn-gold" onclick="addNWItem('liability')">Add</button>
           </div>
           <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text);">
