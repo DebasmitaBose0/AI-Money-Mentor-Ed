@@ -1258,6 +1258,7 @@
         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()"
           id="sipBtn">Calculate</button>
         <div id="sipResult" class="result-box"></div>
+        <canvas id="sipChart" style="margin-top:20px;max-height:300px;display:none"></canvas>
       </div>
     </div>
 
@@ -1664,110 +1665,105 @@
        SIP → POST /sip
     ══════════════════════════════════════════════ */
     async function calcSIP() {
-      const monthly = document.getElementById('sip_monthly').value;
-      const rate = document.getElementById('sip_rate').value;
-      const years = document.getElementById('sip_years').value;
+  const monthly = parseFloat(document.getElementById('sip_monthly').value);
+  const rate = parseFloat(document.getElementById('sip_rate').value);
+  const years = parseInt(document.getElementById('sip_years').value);
 
-      if (!monthly || !rate || !years) {
-        showResult('sipResult', '⚠ Please fill all fields.');
-        return;
-      }
+  if (!monthly || !rate || !years) {
+    showResult('sipResult', '⚠ Please fill all fields.');
+    return;
+  }
 
-      setLoading('sipBtn', true);
-      try {
-        const data = await apiFetch('/sip', {
-          monthly: parseFloat(monthly),
-          rate: parseFloat(rate),
-          years: parseInt(years)
-        });
+  // Input validation
+  if (rate <= 0 || rate > 50) {
+    showResult('sipResult', '⚠ Annual Return Rate should be between 1% and 50%.');
+    return;
+  }
+  if (monthly <= 0) {
+    showResult('sipResult', '⚠ Monthly investment should be greater than 0.');
+    return;
+  }
+  if (years <= 0 || years > 50) {
+    showResult('sipResult', '⚠ Investment period should be between 1 and 50 years.');
+    return;
+  }
 
-        if (data.error) {
-          showResult('sipResult', `⚠ ${data.error}`);
-        } else {
-          const fv = data.future_value;
-          showResult('sipResult', `
-            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Estimated Future Value</div>
-            <div class="result-big">₹${fmtNum(fv)}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:6px">
-              Invested: ₹${fmtNum(monthly * years * 12)} &nbsp;·&nbsp; 
-              Gains: ₹${fmtNum(fv - monthly * years * 12)}
-            </div>
-          `);
+  document.getElementById('sipBtn').disabled = true;
+  document.getElementById('sipBtn').innerHTML = '<span class="spinner"></span>';
 
-          // Compute compounding points
-          const monthlyFloat = parseFloat(monthly);
-          const rateFloat = parseFloat(rate);
-          const yearsInt = parseInt(years);
+  // Frontend SIP calculation — no backend needed
+  const r = rate / 100 / 12;
+  const n = years * 12;
+  const fv = monthly * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
 
-          const labels = [];
-          const investedData = [];
-          const totalData = [];
+  showResult('sipResult', `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Estimated Future Value</div>
+    <div class="result-big">₹${fmtNum(fv)}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px">
+      Invested: ₹${fmtNum(monthly * years * 12)} &nbsp;·&nbsp; 
+      Gains: ₹${fmtNum(fv - monthly * years * 12)}
+    </div>
+  `);
 
-          const r = rateFloat / 100 / 12;
-          for (let y = 1; y <= yearsInt; y++) {
-            const n = y * 12;
-            const fv_point = monthlyFloat * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
-            const invested_point = monthlyFloat * n;
-            labels.push(`Year ${y}`);
-            investedData.push(Math.round(invested_point));
-            totalData.push(Math.round(fv_point));
-          }
+  // Chart
+  const labels = [];
+  const investedData = [];
+  const totalData = [];
 
-          // Draw compounding line chart
-          if (sipChartInstance) sipChartInstance.destroy();
-          const sipCtx = document.getElementById('sipChart').getContext('2d');
-          sipChartInstance = new Chart(sipCtx, {
-            type: 'line',
-            data: {
-              labels: labels,
-              datasets: [
-                {
-                  label: 'Est. Wealth Value',
-                  data: totalData,
-                  borderColor: '#d4a843',
-                  backgroundColor: 'rgba(212, 168, 67, 0.1)',
-                  fill: true,
-                  tension: 0.3
-                },
-                {
-                  label: 'Amount Invested',
-                  data: investedData,
-                  borderColor: '#5a6a82',
-                  backgroundColor: 'transparent',
-                  borderDash: [5, 5],
-                  tension: 0.1
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  labels: { color: '#eef0f5', font: { family: 'Instrument Sans' } }
-                }
-              },
-              scales: {
-                x: {
-                  grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                  ticks: { color: '#5a6a82' }
-                },
-                y: {
-                  grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                  ticks: {
-                    color: '#5a6a82',
-                    callback: function(value) { return '₹' + fmtNum(value); }
-                  }
-                }
-              }
-            }
-          });
+  for (let y = 1; y <= years; y++) {
+    const n2 = y * 12;
+    const fv_point = monthly * ((Math.pow(1 + r, n2) - 1) / r) * (1 + r);
+    labels.push(`Year ${y}`);
+    investedData.push(Math.round(monthly * n2));
+    totalData.push(Math.round(fv_point));
+  }
+
+  if (sipChartInstance) sipChartInstance.destroy();
+  const sipCtx = document.getElementById('sipChart').getContext('2d');
+  sipChartInstance = new Chart(sipCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Est. Wealth Value',
+          data: totalData,
+          borderColor: '#d4a843',
+          backgroundColor: 'rgba(212, 168, 67, 0.1)',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Amount Invested',
+          data: investedData,
+          borderColor: '#5a6a82',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          tension: 0.1
         }
-      } catch (e) {
-        showResult('sipResult', '⚠ Could not reach server.');
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#eef0f5', font: { family: 'Instrument Sans' } } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#5a6a82' } },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: { color: '#5a6a82', callback: v => '₹' + fmtNum(v) }
+        }
       }
-      setLoading('sipBtn', false);
     }
+  });
+  document.getElementById('sipChart').style.display = 'block';
+  document.getElementById('sipBtn').disabled = false;
+  document.getElementById('sipBtn').innerHTML = 'Calculate';
+}
+
+
 
     /* ══════════════════════════════════════════════
        STOCK → POST /portfolio
