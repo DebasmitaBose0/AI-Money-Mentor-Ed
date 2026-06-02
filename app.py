@@ -18,6 +18,7 @@ from utils.money_score import calculate_money_score
 from utils.multi_agent import run_multi_agent
 from utils.stock import get_stock_price
 from utils.expense_track import calculate_expense, insights
+from utils import persistence
 
 app = Flask(__name__)
 
@@ -146,94 +147,107 @@ def money_score():
         return jsonify({"error": str(e)})
 
 
-# Expense Tracker Features
-
-expense_data = []
+# ---------------- EXPENSE TRACKER ----------------
 
 @app.route("/add_expense", methods=["POST"])
 def add_expense():
     try:
         data = request.json
+        if not data or "category" not in data or "amount" not in data or "date" not in data:
+            return jsonify({"error": "category, amount, and date are required"}), 400
         expense = {
-            "category": data["category"],
+            "category": str(data["category"]).strip(),
             "amount": float(data["amount"]),
-            "date": data["date"]
+            "date": str(data["date"]).strip(),
         }
-        expense_data.append(expense)
+        persistence.append_item("expenses", expense)
         return jsonify({"status": "success"})
-    
     except Exception as e:
-        return jsonify({"error": str(e)}),400
+        return jsonify({"error": str(e)}), 400
+
 
 @app.route("/calculate", methods=["GET"])
 def calculate():
+    expense_data = persistence.load("expenses")
     result = calculate_expense(expense_data)
     result["expenses"] = expense_data
     return jsonify(result)
 
+
 @app.route("/insights", methods=["GET"])
 def expense_insights():
-    result =insights(client,expense_data)
+    expense_data = persistence.load("expenses")
+    result = insights(client, expense_data)
     return jsonify(result)
 
+
 # ---------------- NET WORTH TRACKER ----------------
-# Net Worth Tracker Features
-assets_data = []
-liabilities_data = []
 
 @app.route("/net-worth", methods=["GET", "POST"])
 def get_net_worth():
-    total_assets = sum(item['amount'] for item in assets_data)
-    total_liabilities = sum(item['amount'] for item in liabilities_data)
+    assets_data = persistence.load("assets")
+    liabilities_data = persistence.load("liabilities")
+    total_assets = sum(item["amount"] for item in assets_data)
+    total_liabilities = sum(item["amount"] for item in liabilities_data)
     return jsonify({
         "assets": assets_data,
         "liabilities": liabilities_data,
         "total_assets": total_assets,
         "total_liabilities": total_liabilities,
-        "net_worth": total_assets - total_liabilities
+        "net_worth": total_assets - total_liabilities,
     })
+
 
 @app.route("/add-asset", methods=["POST"])
 def add_asset():
     try:
         data = request.json
-        assets_data.append({
-            "id": len(assets_data),
-            "name": data["name"],
-            "amount": float(data["amount"])
+        if not data or "name" not in data or "amount" not in data:
+            return jsonify({"error": "name and amount are required"}), 400
+        persistence.append_item("assets", {
+            "name": str(data["name"]).strip(),
+            "amount": float(data["amount"]),
         })
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @app.route("/add-liability", methods=["POST"])
 def add_liability():
     try:
         data = request.json
-        liabilities_data.append({
-            "id": len(liabilities_data),
-            "name": data["name"],
-            "amount": float(data["amount"])
+        if not data or "name" not in data or "amount" not in data:
+            return jsonify({"error": "name and amount are required"}), 400
+        persistence.append_item("liabilities", {
+            "name": str(data["name"]).strip(),
+            "amount": float(data["amount"]),
         })
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
 @app.route("/delete-item", methods=["POST"])
 def delete_item():
+    """Delete an asset or liability by its stable id (NOT list index).
+
+    Previously this used list.pop(index) which silently corrupted
+    all subsequent indices after the first deletion.
+    """
     try:
         data = request.json
-        item_type = data["type"] # 'asset' or 'liability'
-        item_id = int(data["id"])
+        item_type = data.get("type")   # 'asset' or 'liability'
+        item_id = int(data.get("id"))
 
-        if item_type == 'asset':
-            assets_data.pop(item_id)
-        else:
-            liabilities_data.pop(item_id)
-
+        store = "assets" if item_type == "asset" else "liabilities"
+        persistence.delete_item(store, item_id)
         return jsonify({"status": "success"})
+    except KeyError as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
