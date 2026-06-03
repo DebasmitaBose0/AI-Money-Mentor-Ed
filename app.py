@@ -263,8 +263,8 @@ def expense_insights():
 def get_net_worth():
     assets = Asset.query.order_by(Asset.id).all()
     liabilities = Liability.query.order_by(Liability.id).all()
-    assets_data = [a.to_dict(i) for i, a in enumerate(assets)]
-    liabilities_data = [l.to_dict(i) for i, l in enumerate(liabilities)]
+    assets_data = [a.to_dict() for a in assets]
+    liabilities_data = [l.to_dict() for l in liabilities]
     total_assets = sum(item['amount'] for item in assets_data)
     total_liabilities = sum(item['amount'] for item in liabilities_data)
     return jsonify({
@@ -306,27 +306,27 @@ def add_liability():
 
 @app.route("/delete-item", methods=["POST"])
 def delete_item():
-    """Delete an asset or liability by its stable id (NOT list index).
-
-    Previously this used list.pop(index) which silently corrupted
-    all subsequent indices after the first deletion.
-    """
+    """Delete an asset or liability by its stable database primary key ID."""
     try:
         data = request.json
         item_type = data.get("type") # 'asset' or 'liability'
-        item_id = int(data.get("id")) # positional index from the frontend
+        item_id = int(data.get("id")) # stable DB primary key ID
 
         if item_type == 'asset':
-            rows = Asset.query.order_by(Asset.id).all()
-            db.session.delete(rows[item_id])
+            item = db.session.get(Asset, item_id)
+            if not item:
+                return jsonify({"error": f"Asset with ID {item_id} not found"}), 404
+            db.session.delete(item)
+        elif item_type == 'liability':
+            item = db.session.get(Liability, item_id)
+            if not item:
+                return jsonify({"error": f"Liability with ID {item_id} not found"}), 404
+            db.session.delete(item)
         else:
-            rows = Liability.query.order_by(Liability.id).all()
-            db.session.delete(rows[item_id])
+            return jsonify({"error": "Invalid item type"}), 400
 
         db.session.commit()
         return jsonify({"status": "success"})
-    except KeyError as e:
-        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

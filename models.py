@@ -28,10 +28,9 @@ class Asset(db.Model):
     name = db.Column(db.String(120), nullable=False)
     amount = db.Column(db.Float, nullable=False)
 
-    def to_dict(self, index):
-        # Original shape: {"id", "name", "amount"} where id was the list index.
-        # Frontend deletes by list position, so we expose the positional index as id.
-        return {"id": index, "name": self.name, "amount": self.amount}
+    def to_dict(self):
+        # Return the actual stable database primary key
+        return {"id": self.id, "name": self.name, "amount": self.amount}
 
 
 class Liability(db.Model):
@@ -40,5 +39,5 @@ class Liability(db.Model):
     name = db.Column(db.String(120), nullable=False)
     amount = db.Column(db.Float, nullable=False)
 
-    def to_dict(self, index):
-        return {"id": index, "name": self.name, "amount": self.amount}
+    def to_dict(self):
+        return {"id": self.id, "name": self.name, "amount": self.amount}

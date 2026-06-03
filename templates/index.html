@@ -2976,12 +2976,12 @@ try{
                           if (data.assets.length === 0) {
                             assetList.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--muted); font-style: italic;">No assets added yet</td></tr>';
                           } else {
-                            data.assets.forEach((item, idx) => {
+                            data.assets.forEach((item) => {
                               assetList.innerHTML += `
               <tr style="border-bottom: 1px solid var(--border);">
                 <td style="padding: 8px;">${item.name}</td>
                 <td style="padding: 8px; text-align: right;">₹${fmtNum(item.amount)}</td>
-                <td style="padding: 8px; text-align: center;"><button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="deleteNWItem('asset', ${idx})">✖</button></td>
+                <td style="padding: 8px; text-align: center;"><button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="deleteNWItem('asset', ${item.id})">✖</button></td>
               </tr>
             `;
                             });
@@ -2992,16 +2992,64 @@ try{
                           if (data.liabilities.length === 0) {
                             liabList.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--muted); font-style: italic;">No liabilities added yet</td></tr>';
                           } else {
-                            data.liabilities.forEach((item, idx) => {
+                            data.liabilities.forEach((item) => {
                               liabList.innerHTML += `
                 <tr style="border-bottom: 1px solid var(--border);">
                   <td style="padding: 8px;">${item.name}</td>
                   <td style="padding: 8px; text-align: right;">₹${fmtNum(item.amount)}</td>
-                  <td style="padding: 8px; text-align: center;"><button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="deleteNWItem('liability', ${idx})">✖</button></td>
+                  <td style="padding: 8px; text-align: center;"><button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="deleteNWItem('liability', ${item.id})">✖</button></td>
                 </tr>
               `;
                             });
                           }
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }
+
+                      async function addNWItem(type) {
+                        if (type === 'asset') {
+                          const name = document.getElementById('assetName').value.trim();
+                          const amount = parseFloat(document.getElementById('assetAmt').value);
+                          if (!name || isNaN(amount) || amount < 0) {
+                            alert('Please enter a valid asset name and positive value.');
+                            return;
+                          }
+                          const res = await apiFetch('/add-asset', { name, amount });
+                          if (res.status === 'success') {
+                            document.getElementById('assetName').value = '';
+                            document.getElementById('assetAmt').value = '';
+                            loadNetWorth();
+                          } else {
+                            alert('Failed to add asset: ' + (res.error || 'unknown error'));
+                          }
+                        } else if (type === 'liability') {
+                          const name = document.getElementById('liabName').value.trim();
+                          const amount = parseFloat(document.getElementById('liabAmt').value);
+                          if (!name || isNaN(amount) || amount < 0) {
+                            alert('Please enter a valid liability name and positive value.');
+                            return;
+                          }
+                          const res = await apiFetch('/add-liability', { name, amount });
+                          if (res.status === 'success') {
+                            document.getElementById('liabName').value = '';
+                            document.getElementById('liabAmt').value = '';
+                            loadNetWorth();
+                          } else {
+                            alert('Failed to add liability: ' + (res.error || 'unknown error'));
+                          }
+                        }
+                      }
+
+                      async function deleteNWItem(type, itemId) {
+                        if (!confirm('Are you sure you want to delete this item?')) return;
+                        const res = await apiFetch('/delete-item', { type: type, id: itemId });
+                        if (res.status === 'success') {
+                          loadNetWorth();
+                        } else {
+                          alert('Failed to delete item: ' + (res.error || 'unknown error'));
+                        }
+                      }
 
 loadExpenses();
 let goals = [];
