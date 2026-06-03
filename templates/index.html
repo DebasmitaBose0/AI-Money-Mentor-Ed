@@ -1662,12 +1662,12 @@ pointer;
         <div class="card">
           <div class="card-title">Enter your financial details</div>
           <div class="form-grid">
-            <div><label>Monthly Income (₹)</label><input type="number" required min="0" id="s_income" placeholder="e.g. 80000"></div>
-            <div><label>Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses" placeholder="e.g. 40000"></div>
-            <div><label>Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings" placeholder="e.g. 20000"></div>
-            <div><label>Investments (₹)</label><input type="number" required min="0" id="s_invest" placeholder="e.g. 500000"></div>
-            <div><label>Total Debt (₹)</label><input type="number" required min="0" id="s_debt" placeholder="e.g. 100000"></div>
-            <div><label>Emergency Fund (₹)</label><input type="number" required min="0" id="s_emergency" placeholder="e.g. 240000"></div>
+            <div><label>Monthly Income (₹)</label><input type="number" required min="0" id="s_income" placeholder="e.g. 80000" aria-label="s_income input"></div>
+            <div><label>Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses" placeholder="e.g. 40000" aria-label="s_expenses input"></div>
+            <div><label>Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings" placeholder="e.g. 20000" aria-label="s_savings input"></div>
+            <div><label>Investments (₹)</label><input type="number" required min="0" id="s_invest" placeholder="e.g. 500000" aria-label="s_invest input"></div>
+            <div><label>Total Debt (₹)</label><input type="number" required min="0" id="s_debt" placeholder="e.g. 100000" aria-label="s_debt input"></div>
+            <div><label>Emergency Fund (₹)</label><input type="number" required min="0" id="s_emergency" placeholder="e.g. 240000" aria-label="s_emergency input"></div>
           </div>
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcScore()" id="scoreBtn">Calculate
             Money Score</button>
@@ -1688,13 +1688,13 @@ pointer;
       <div class="card-title">SIP Projection</div>
 
       <label>Monthly Investment (₹)</label>
-      <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000">
+      <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000" aria-label="sip_monthly input">
 
       <label>Annual Return Rate (%)</label>
-      <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12">
+      <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12" aria-label="sip_rate input">
 
       <label>Investment Period (Years)</label>
-      <input type="number" required min="0" id="sip_years" placeholder="e.g. 10">
+      <input type="number" required min="0" id="sip_years" placeholder="e.g. 10" aria-label="sip_years input">
 
       <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()" id="sipBtn">
         Calculate
@@ -1722,7 +1722,7 @@ pointer;
       <div class="card-title">Live Stock Price (NSE/Global)</div>
 
       <label>Stock Symbol</label>
-      <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL">
+      <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL" aria-label="stockSym input">
 
       <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="checkStock()" id="stockBtn">
         Get Price
@@ -1748,7 +1748,7 @@ pointer;
                   <div class="card">
                     <div class="card-title">Live Stock Price (NSE/Global)</div>
                     <label>Stock Symbol</label>
-                    <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL">
+                    <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL" aria-label="stockSym input">
                     <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="checkStock()"
                       id="stockBtn">Get
                       Price</button>
@@ -1765,7 +1765,7 @@ pointer;
                     <div class="card" style="max-width:480px">
                       <div class="card-title">Live Stock Price (NSE)</div>
                       <label>Stock Symbol</label>
-                      <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, INFY">
+                      <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, INFY" aria-label="stockSym input">
                       <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="checkStock()"
                         id="stockBtn">Get
                         Price</button>
@@ -1781,7 +1781,7 @@ pointer;
                       <div class="card">
                         <div class="card-title">Income Tax Calculator</div>
                         <label>Gross Annual Income (₹)</label>
-                        <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000">
+                        <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000" aria-label="taxIncome input">
                         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcTax()"
                           id="taxBtn">Calculate
                           Tax</button>
@@ -1796,7 +1796,7 @@ pointer;
                         <div class="card" style="max-width:480px">
                           <div class="card-title">Income Tax Calculator (New Regime)</div>
                           <label>Annual Income (₹)</label>
-                          <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000">
+                          <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000" aria-label="taxIncome input">
                           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcTax()"
                             id="taxBtn">Calculate
                             Tax</button>
@@ -1810,7 +1810,7 @@ pointer;
                         <div class="card" style="max-width:480px">
                           <div class="card-title">Upload Financial Document</div>
                           <label>Select PDF (Form 16, Salary Slip, etc.)</label>
-                          <input type="file" id="pdfFile" accept=".pdf" style="margin-top:8px">
+                          <input type="file" id="pdfFile" accept=".pdf" style="margin-top:8px" aria-label="pdfFile input">
                           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="uploadPDF()"
                             id="pdfBtn">Parse
                             Document</button>
@@ -1867,28 +1867,10 @@ style="width:220px;"
         <option value="Shopping">Shopping</option>
         <option value="Other">Other</option>
     </select>
-        <input type="number" required min="0" id="amount" placeholder="Amount (₹)" required>
-        <input type="date" id="date" required>
+        <input type="number" required min="0" id="amount" placeholder="Amount (₹)" required aria-label="amount input">
+        <input type="date" id="date" required aria-label="date input">
         <button type="submit">Add Expense</button>
       </form>
-
-                      <!---------- EXPENSE TRACK------------------->
-                      <div id="expense" class="page">
-                        <div class="page-title">💲 Expense Track and Insights</div>
-                        <form id="expenseForm">
-                          <select id="category" required>
-                            <option value="">Select Category</option>
-                            <option value="Food">Food</option>
-                            <option value="Rent">Rent</option>
-                            <option value="Travel">Travel</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Other">Other</option>
-                          </select>
-                          <input type="number" required min="0" id="amount" placeholder="Amount (₹)" required>
-                          <input type="date" id="date" required>
-                          <button type="submit">Add Expense</button>
-                        </form>
-
                         <div class="cards">
                           <div class="card" id="totalCard">
                             <h2>Total Spend</h2>
@@ -1956,8 +1938,8 @@ style="width:220px;"
                           <div class="card">
                             <div class="card-title">Assets (What you own)</div>
                             <div class="chat-input-row" style="margin-bottom: 15px;">
-                              <input type="text" id="assetName" placeholder="Asset name (e.g. HDFC Savings)">
-                              <input type="number" required min="0" id="assetAmt" placeholder="Amount (₹)">
+                              <input type="text" id="assetName" placeholder="Asset name (e.g. HDFC Savings)" aria-label="assetName input">
+                              <input type="number" required min="0" id="assetAmt" placeholder="Amount (₹)" aria-label="assetAmt input">
                               <button class="btn btn-gold" onclick="addNWItem('asset')">Add</button>
                             </div>
                             <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text);">
@@ -1977,8 +1959,8 @@ style="width:220px;"
                           <div class="card">
                             <div class="card-title">Liabilities (What you owe)</div>
                             <div class="chat-input-row" style="margin-bottom: 15px;">
-                              <input type="text" id="liabName" placeholder="Liability name (e.g. Home Loan)">
-                              <input type="number" required min="0" id="liabAmt" placeholder="Amount (₹)">
+                              <input type="text" id="liabName" placeholder="Liability name (e.g. Home Loan)" aria-label="liabName input">
+                              <input type="number" required min="0" id="liabAmt" placeholder="Amount (₹)" aria-label="liabAmt input">
                               <button class="btn btn-gold" onclick="addNWItem('liability')">Add</button>
                             </div>
                             <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text);">
@@ -1996,22 +1978,13 @@ style="width:220px;"
                         </div>
                       </div>
 
-                      <canvas id="expenseChart"></canvas>
-
-</div>
-
 </div><!-- /main -->
-    
-  <!-- Loading charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-                    <!-- Scroll to Top Button -->
-                    <button id="scrollTopBtn" onclick="document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'})" style="display:none; position:fixed; bottom:30px; right:30px; z-index:100; border-radius:50%; width:44px; height:44px; font-size:20px; align-items:center; justify-content:center;" class="btn btn-gold">↑</button>
+<!-- Scroll to Top Button -->
+<button id="scrollTopBtn" onclick="document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'})" style="display:none; position:fixed; bottom:30px; right:30px; z-index:100; border-radius:50%; width:44px; height:44px; font-size:20px; align-items:center; justify-content:center;" class="btn btn-gold">↑</button>
 
-                    </div><!-- /main -->
-
-                    <!-- Loading charts -->
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Loading charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
                     <script>
                     // Scroll to Top visibility toggle
@@ -2819,41 +2792,6 @@ console.log(data);
         alert("Error adding expense");
     }
 });
-
-
-                      /* ══════════════════════════════════════════════
-                                EXPENSE TRACKER
-                      ══════════════════════════════════════════════ */
-
-                      document.getElementById("expenseForm").addEventListener("submit", async function (e) {
-                        e.preventDefault();
-
-                        const expense = {
-                          category: document.getElementById("category").value,
-                          amount: parseFloat(document.getElementById("amount").value),
-                          date: document.getElementById("date").value
-                        };
-
-                        try {
-                          const response = await fetch("/add_expense", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(expense)
-                          });
-
-                          const data = await response.json();
-
-                          if (data.status === "success") {
-                            document.getElementById("expenseForm").reset();
-                            loadExpenses();
-                          }
-                        } catch (error) {
-                          console.error(error);
-                          alert("Error adding expense");
-                        }
-                      });
 
 
                       async function loadExpenses() {
