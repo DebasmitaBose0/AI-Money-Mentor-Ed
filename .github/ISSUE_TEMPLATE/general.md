@@ -1,7 +1,7 @@
 ---
 name: General Issue
 about: Anything that doesn't fit bug, feature, or documentation categories
-title: "e.g. [BUG] Session code input not clearing after joining"
+title: "[General] "
 ---
 
 ## Summary

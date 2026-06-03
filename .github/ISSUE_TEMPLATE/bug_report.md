@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug or broken behavior in LecturePulse
+about: Report a bug or broken behavior in AI Money Mentor
 title: "[Bug] "
 ---
 
@@ -10,9 +10,10 @@ title: "[Bug] "
 
 ## Steps to Reproduce
 
-1.
-2.
-3.
+1. Start the Flask application locally.
+2. Go to the page/section...
+3. Perform action...
+4. Observe the error/behavior.
 
 ## Expected Behavior
 
@@ -20,27 +21,29 @@ title: "[Bug] "
 
 ## Actual Behavior
 
-<!-- What actually happened. -->
+<!-- What actually happened. Include traceback/console log if applicable. -->
 
 ## Screenshots
 
-<!-- If applicable, add screenshots to help explain the problem. -->
+<!-- If applicable, add screenshots or videos to help explain the problem. -->
 
 ## Environment
 
-- **Browser**: <!-- e.g. Chrome 125, Firefox 127 -->
-- **OS**: <!-- e.g. Windows 11, macOS Sonoma -->
-- **Node.js version**: <!-- e.g. 20.x -->
+- **OS**: <!-- e.g. Windows 11, macOS, Ubuntu -->
+- **Python Version**: <!-- e.g. 3.10, 3.11 -->
+- **Browser**: <!-- e.g. Chrome, Firefox -->
 
-## Affected Page / Component
+## Affected Component
 
-<!-- Which part of the app is affected? -->
-
-- [ ] Landing
-- [ ] Login
-- [ ] Dashboard
-- [ ] Student Feedback
-- [ ] Analytics
+- [ ] Chat AI / Groq API
+- [ ] Net Worth Tracker (Assets/Liabilities)
+- [ ] Expense Tracker / Insights
+- [ ] SIP / Compound Interest Calculator
+- [ ] Tax Regime Comparison
+- [ ] Portfolio / Stock integration
+- [ ] Multi-Agent Framework
+- [ ] PDF Income Extraction
+- [ ] CI/CD or Repository configurations
 - [ ] Other: <!-- specify -->
 
 ## Additional Context

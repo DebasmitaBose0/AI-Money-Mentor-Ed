@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for LecturePulse
+about: Suggest a new feature or enhancement for AI Money Mentor
 title: "[Feature] "
 ---
 
@@ -16,15 +16,15 @@ title: "[Feature] "
 
 <!-- Have you considered any alternatives? Why is your proposed solution better? -->
 
-## Affected Area
+## Affected Component
 
-<!-- Which part of the app does this touch? -->
-
-- [ ] UI / UX
-- [ ] New component
-- [ ] New page
-- [ ] Analytics / Charts
-- [ ] Authentication
+- [ ] UI / Styling (Vanilla CSS)
+- [ ] Backend APIs (Flask / SQLALchemy)
+- [ ] AI Models / Prompt Engineering
+- [ ] Calculator Metrics (SIP, Tax, Portfolio)
+- [ ] PDF Parser / Document Processing
+- [ ] Multi-Agent Capabilities
+- [ ] Documentation / Help Guides
 - [ ] Other: <!-- specify -->
 
 ## Mockups / Additional Context
