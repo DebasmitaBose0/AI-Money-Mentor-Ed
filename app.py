@@ -148,9 +148,9 @@ def portfolio():
         stock = request.json["stock"].upper()
         result = get_stock_price(stock)
         return jsonify(result)
-
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Stock Portfolio Lookup Error: {str(e)}")
+        return jsonify({"error": "Unable to fetch stock data at the moment. Please verify the stock symbol and try again."}), 500
     
 # ---------------- 💸 TAX ----------------
 @app.route("/tax", methods=["POST"])
@@ -158,9 +158,9 @@ def tax():
     try:
         income = float(request.json["income"])
         return jsonify({"tax": calculate_tax(income)})
-
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Tax Calculation Error: {str(e)}")
+        return jsonify({"error": "An error occurred while calculating tax. Please check the income value."}), 500
 
 
 # ---------------- 📄 PDF ----------------
@@ -170,9 +170,9 @@ def upload():
         file = request.files["file"]
         result = extract_income(file)
         return jsonify({"data": result})
-
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"PDF Income Extraction Error: {str(e)}")
+        return jsonify({"error": "Failed to parse PDF document. Ensure it is a valid salary slip or Form 16."}), 500
 
 
 # ---------------- 🧠 MULTI AGENT ----------------
@@ -182,9 +182,9 @@ def run_agent_route():
         query = request.json["query"]
         response = run_multi_agent(client, query)
         return jsonify({"response": response})
-
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Multi-Agent Execution Error: {str(e)}")
+        return jsonify({"error": "Multi-agent advisor is currently busy or encountered an error. Please try again in a few moments."}), 500
 
 
 # ---------------- 💰 MONEY SCORE ----------------
@@ -215,9 +215,9 @@ def money_score():
             "score": score,
             "status": status
         })
-
     except Exception as e:
-        return jsonify({"error": str(e)})
+        app.logger.error(f"Money Score Calculation Error: {str(e)}")
+        return jsonify({"error": "An error occurred while calculating money score. Please check the inputs."}), 500
 
 
 # ---------------- EXPENSE TRACKER ----------------
