@@ -49,6 +49,39 @@ client = Groq(api_key=GROQ_API_KEY)
 # ── Dev-mode startup message ─────────────────────────────────
 if os.getenv("FLASK_ENV", "development") != "production":
     print("[OK] Groq client initialised successfully.")
+# ---------------- VALIDATION HELPERS ----------------
+def validate_float(data, key, min_val=0.0):
+    if not data or key not in data:
+        raise ValueError(f"'{key}' is required.")
+    try:
+        val = float(data[key])
+    except (TypeError, ValueError):
+        raise ValueError(f"'{key}' must be a valid number.")
+    if val < min_val:
+        raise ValueError(f"'{key}' must be at least {min_val}.")
+    return val
+
+def validate_int(data, key, min_val=0):
+    if not data or key not in data:
+        raise ValueError(f"'{key}' is required.")
+    try:
+        val = int(data[key])
+    except (TypeError, ValueError):
+        raise ValueError(f"'{key}' must be a valid integer.")
+    if val < min_val:
+        raise ValueError(f"'{key}' must be at least {min_val}.")
+    return val
+
+def validate_string(data, key, max_len=200):
+    if not data or key not in data:
+        raise ValueError(f"'{key}' is required.")
+    val = str(data[key]).strip()
+    if not val:
+        raise ValueError(f"'{key}' cannot be empty.")
+    if len(val) > max_len:
+        raise ValueError(f"'{key}' exceeds maximum length of {max_len} characters.")
+    return val
+
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
@@ -103,7 +136,7 @@ def internal_server_error(error):
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        msg = request.json.get("message")
+        msg = validate_string(request.json, "message", max_len=1000)
 
         res = client.chat.completions.create(
             model="llama-3.1-8b-instant",
@@ -117,12 +150,14 @@ def chat():
             "reply": res.choices[0].message.content
         })
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-    	app.logger.error(f"Groq API Error: {str(e)}")
+        app.logger.error(f"Groq API Error: {str(e)}")
 
-    	return jsonify({
-        	"reply": "Unable to generate a response at the moment. Please try again later."
-    	}), 500
+        return jsonify({
+            "reply": "Unable to generate a response at the moment. Please try again later."
+        }), 500
 
 
 # ---------------- 💸 SIP ----------------
@@ -130,37 +165,42 @@ def chat():
 def sip():
     try:
         data = request.json
-        result = calculate_sip(
-            float(data["monthly"]),
-            float(data["rate"]),
-            int(data["years"])
-        )
+        monthly = validate_float(data, "monthly", min_val=0.0)
+        rate = validate_float(data, "rate", min_val=0.0)
+        years = validate_int(data, "years", min_val=0)
+        result = calculate_sip(monthly, rate, years)
         return jsonify({"future_value": result})
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- 📊 STOCK ----------------
 @app.route("/portfolio", methods=["POST"])
 def portfolio():
     try:
-        stock = request.json["stock"].upper()
+        stock = validate_string(request.json, "stock", max_len=10).upper()
         result = get_stock_price(stock)
         return jsonify(result)
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
     
 # ---------------- 💸 TAX ----------------
 @app.route("/tax", methods=["POST"])
 def tax():
     try:
-        income = float(request.json["income"])
+        income = validate_float(request.json, "income", min_val=0.0)
         return jsonify({"tax": calculate_tax(income)})
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- 📄 PDF ----------------
@@ -172,19 +212,21 @@ def upload():
         return jsonify({"data": result})
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- 🧠 MULTI AGENT ----------------
 @app.route("/agent", methods=["POST"])
 def run_agent_route():
     try:
-        query = request.json["query"]
+        query = validate_string(request.json, "query", max_len=1000)
         response = run_multi_agent(client, query)
         return jsonify({"response": response})
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- 💰 MONEY SCORE ----------------
@@ -192,15 +234,14 @@ def run_agent_route():
 def money_score():
     try:
         data = request.json
+        income = validate_float(data, "income", min_val=0.0)
+        expenses = validate_float(data, "expenses", min_val=0.0)
+        savings = validate_float(data, "savings", min_val=0.0)
+        investments = validate_float(data, "investments", min_val=0.0)
+        debt = validate_float(data, "debt", min_val=0.0)
+        emergency = validate_float(data, "emergency", min_val=0.0)
 
-        score = calculate_money_score(
-            float(data["income"]),
-            float(data["expenses"]),
-            float(data["savings"]),
-            float(data["investments"]),
-            float(data["debt"]),
-            float(data["emergency"])
-        )
+        score = calculate_money_score(income, expenses, savings, investments, debt, emergency)
 
         if score >= 80:
             status = "Excellent 💚"
@@ -216,8 +257,10 @@ def money_score():
             "status": status
         })
 
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- EXPENSE TRACKER ----------------
@@ -226,22 +269,23 @@ def money_score():
 def add_expense():
     try:
         data = request.json
-        if not data or "category" not in data or "amount" not in data or "date" not in data:
-            return jsonify({"error": "category, amount, and date are required"}), 400
-
-        print("RECEIVED:", data)
+        category = validate_string(data, "category", max_len=120)
+        amount = validate_float(data, "amount", min_val=0.0)
+        date = validate_string(data, "date", max_len=40)
 
         expense = Expense(
-            category=str(data["category"]).strip(),
-            amount=float(data["amount"]),
-            date=str(data["date"]).strip()
+            category=category,
+            amount=amount,
+            date=date
         )
         db.session.add(expense)
         db.session.commit()
         return jsonify({"status": "success"})
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
         print("ERROR:", str(e))
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/calculate", methods=["GET"])
 def calculate():
@@ -280,28 +324,32 @@ def get_net_worth():
 def add_asset():
     try:
         data = request.json
-        if not data or "name" not in data or "amount" not in data:
-            return jsonify({"error": "name and amount are required"}), 400
-        asset = Asset(name=str(data["name"]).strip(), amount=float(data["amount"]))
+        name = validate_string(data, "name", max_len=120)
+        amount = validate_float(data, "amount", min_val=0.0)
+        asset = Asset(name=name, amount=amount)
         db.session.add(asset)
         db.session.commit()
         return jsonify({"status": "success"})
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/add-liability", methods=["POST"])
 def add_liability():
     try:
         data = request.json
-        if not data or "name" not in data or "amount" not in data:
-            return jsonify({"error": "name and amount are required"}), 400
-        liability = Liability(name=str(data["name"]).strip(), amount=float(data["amount"]))
+        name = validate_string(data, "name", max_len=120)
+        amount = validate_float(data, "amount", min_val=0.0)
+        liability = Liability(name=name, amount=amount)
         db.session.add(liability)
         db.session.commit()
         return jsonify({"status": "success"})
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/delete-item", methods=["POST"])
@@ -313,8 +361,10 @@ def delete_item():
     """
     try:
         data = request.json
-        item_type = data.get("type") # 'asset' or 'liability'
-        item_id = int(data.get("id")) # positional index from the frontend
+        item_type = validate_string(data, "type", max_len=20)
+        if item_type not in ("asset", "liability"):
+            raise ValueError("type must be either 'asset' or 'liability'")
+        item_id = validate_int(data, "id", min_val=0)
 
         if item_type == 'asset':
             rows = Asset.query.order_by(Asset.id).all()
@@ -325,10 +375,12 @@ def delete_item():
 
         db.session.commit()
         return jsonify({"status": "success"})
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except KeyError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- RUN ----------------
