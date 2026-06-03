@@ -1,0 +1,48 @@
+name: Automated Issue Labeler
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-label Issue based on Content
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labelsToAdd = [];
+
+            // Define keywords to map to labels
+            const ruleMap = {
+              'bug': ['bug', 'error', 'fail', 'crash', 'broken', 'exception', 'unexpected'],
+              'enhancement': ['feature', 'enhancement', 'improve', 'add', 'request', 'optimize'],
+              'documentation': ['docs', 'document', 'readme', 'contributing', 'guide', 'typo'],
+              'security': ['security', 'vulnerability', 'exploit', 'leak', 'sanitize', 'token']
+            };
+
+            for (const [label, keywords] of Object.entries(ruleMap)) {
+              const matched = keywords.some(keyword => title.includes(keyword) || body.includes(keyword));
+              if (matched) {
+                labelsToAdd.push(label);
+              }
+            }
+
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labelsToAdd
+              });
+              console.log(`Successfully added labels: ${labelsToAdd.join(', ')}`);
+            } else {
+              console.log('No matching keywords found. Skipping labeling.');
+            }
