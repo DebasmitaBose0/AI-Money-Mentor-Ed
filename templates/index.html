@@ -1657,11 +1657,13 @@ pointer;
         <div class="chat-input-row">
           <textarea  id="chatInput"  class="chat-textarea"  placeholder="Ask anything financial…"  rows="1"></textarea>
           <button class="btn btn-gold" onclick="chatSend()" id="chatBtn">Send</button>
+          <button class="btn btn-ghost" onclick="clearChat()" id="clearBtn" title="Clear conversation">Clear</button>
         </div>
       </div>
     </div>
 
     <!-- ── MONEY SCORE ─────────────── -->
+
     <div id="score" class="page">
       <div class="page-title">Money <span>Score</span></div>
       <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; max-width: 900px;">
@@ -2313,9 +2315,12 @@ dashSend();
                         dashSend();
                       }
 
-                      /* ══════════════════════════════════════════════
+                     /* ══════════════════════════════════════════════
                          FULL CHAT PAGE
                       ══════════════════════════════════════════════ */
+                      // Stores conversation history as {role, content} pairs for context
+                      const chatHistory = [];
+
                       async function chatSend() {
                         const inp = document.getElementById('chatInput');
                         const msg = inp.value.trim();
@@ -2324,8 +2329,12 @@ dashSend();
                         appendMsg('chatMessages', 'user', msg);
                         setLoading('chatBtn', true);
                         try {
-                          const data = await apiFetch('/chat', { message: msg });
-                          appendMsg('chatMessages', 'bot', data.reply || data.error);
+                          const data = await apiFetch('/chat', { message: msg, history: chatHistory });
+                          const reply = data.reply || data.error;
+                          // Save both turns to history so context is passed on next message
+                          chatHistory.push({ role: 'user', content: msg });
+                          chatHistory.push({ role: 'assistant', content: reply });
+                          appendMsg('chatMessages', 'bot', reply);
                         } catch (e) {
                           appendMsg('chatMessages', 'bot', '⚠ Could not reach server.');
                         }
@@ -2335,6 +2344,26 @@ dashSend();
                       function chatQuick(text) {
                         document.getElementById('chatInput').value = text;
                         chatSend();
+                      }
+
+                      function clearChat() {
+                        chatHistory.length = 0;
+                        const box = document.getElementById('chatMessages');
+                        box.innerHTML = '';
+                        const welcome = document.createElement('div');
+                        welcome.id = 'chatPageWelcome';
+                        welcome.className = 'chat-welcome';
+                        welcome.innerHTML = `
+                          <div class="chat-welcome-icon">🎯</div>
+                          <h3>Financial Guidance at Your Fingertips</h3>
+                          <p>Ask questions about investments, tax planning, portfolio strategy, SIPs, risk assessment, or any financial topic.</p>
+                          <div class="chat-features">
+                            <div class="chat-feature-item" onclick="chatQuick('How should I diversify my portfolio?')">📊 Portfolio</div>
+                            <div class="chat-feature-item" onclick="chatQuick('Best tax saving strategies for 2024-25')">💸 Tax Strategy</div>
+                            <div class="chat-feature-item" onclick="chatQuick('Should I invest in mutual funds or stocks?')">📈 Investments</div>
+                            <div class="chat-feature-item" onclick="chatQuick('How much emergency fund do I need?')">🛡️ Emergency Fund</div>
+                          </div>`;
+                        box.appendChild(welcome);
                       }
 
                       /* ══════════════════════════════════════════════

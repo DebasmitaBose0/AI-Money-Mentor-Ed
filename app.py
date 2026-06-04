@@ -103,14 +103,18 @@ def internal_server_error(error):
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        msg = request.json.get("message")
+        data = request.json
+        msg = data.get("message")
+        history = data.get("history", [])
+
+        # Build messages: system prompt + last 10 history turns + current message
+        messages = [{"role": "system", "content": "You are a financial advisor for India."}]
+        messages += history[-10:]
+        messages.append({"role": "user", "content": msg})
 
         res = client.chat.completions.create(
             model="llama-3.1-8b-instant",
-            messages=[
-                {"role": "system", "content": "You are a financial advisor for India."},
-                {"role": "user", "content": msg}
-            ]
+            messages=messages
         )
 
         return jsonify({
@@ -118,11 +122,11 @@ def chat():
         })
 
     except Exception as e:
-    	app.logger.error(f"Groq API Error: {str(e)}")
+        app.logger.error(f"Groq API Error: {str(e)}")
 
-    	return jsonify({
-        	"reply": "Unable to generate a response at the moment. Please try again later."
-    	}), 500
+        return jsonify({
+            "reply": "Unable to generate a response at the moment. Please try again later."
+        }), 500
 
 
 # ---------------- 💸 SIP ----------------
