@@ -12,7 +12,7 @@ def get_ai_reply(message):
         res = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": "You are a financial advisor for India."},
+                {"role": "system", "content": "You are a financial advisor for India. "},
                 {"role": "user", "content": message}
             ]
         )
