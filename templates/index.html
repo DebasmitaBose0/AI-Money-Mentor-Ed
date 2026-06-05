@@ -1221,10 +1221,18 @@
         radial-gradient(circle at 88% 12%, rgba(212, 168, 67, 0.08), transparent 14%);
     }
 
+
+  .page-title {
+    font-size: 18px;
+  }
+
+/* ===== GOAL TRACKER STYLING FIX ===== */
+
     .page-title {
       font-size: 18px;
     }
-    }
+    
+
 
     /* ===== GOAL TRACKER STYLING FIX ===== */
 
@@ -2951,6 +2959,20 @@
                   <td style="padding: 8px; text-align: center;"><button class="btn btn-ghost" style="padding: 4px 8px; font-size: 10px;" onclick="deleteNWItem('liability', ${idx})">✖</button></td>
                 </tr>
               `;
+
+                            });
+                          }
+                             } catch(error){
+            console.log(error);
+        }
+}
+
+loadExpenses();
+
+let goals = [];
+                          
+
+
           });
         }
       } catch (e) {
@@ -2964,6 +2986,7 @@
       _origShowPage(name, e);
       if (name === 'networth') loadNetWorth();
     };
+
 
     /* ══════════════════════════════════════════════
        GOAL TRACKER (global scope)
@@ -3118,8 +3141,13 @@ Add Savings
 
 </div>
 `;
+
+});
+}
+
           });
         }
+
 
     /* ══════════════════════════════════════════════
        THEME TOGGLE (global scope)
@@ -3146,7 +3174,81 @@ Add Savings
       }
     })();
 
+
+                   </script>
+
+ <script>
+
+async function chatSend() {
+
+    const input = document.getElementById("chatInput");
+    const messages = document.getElementById("chatMessages");
+    const welcome = document.getElementById("chatPageWelcome");
+
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    welcome?.classList.add("hidden");
+
+    messages.innerHTML += `
+        <div class="msg user">
+            <div class="sender">YOU</div>
+            ${text}
+        </div>
+    `;
+
+    input.value = "";
+
+    try {
+
+        const res = await fetch("http://127.0.0.1:5000/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: text
+            })
+        });
+
+        const data = await res.json();
+
+        messages.innerHTML += `
+            <div class="msg bot">
+                <div class="sender">AI</div>
+                ${data.reply}
+            </div>
+        `;
+
+    } catch (err) {
+
+        messages.innerHTML += `
+            <div class="msg bot">
+                <div class="sender">AI</div>
+                Backend not connected. /chat endpoint missing.
+            </div>
+        `;
+
+        console.log(err);
+    }
+
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function chatQuick(text){
+
+    document.getElementById(
+        "chatInput"
+    ).value = text;
+
+    chatSend();
+}
+
+</script>
+
   </script>
+
 </body>
 
 </html>
