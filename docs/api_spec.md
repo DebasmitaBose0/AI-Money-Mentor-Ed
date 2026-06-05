@@ -11,7 +11,8 @@ This document details the backend REST API endpoints exposed by the Flask applic
 - **Request Body**:
   ```json
   {
-    "message": "What is tax exemption under Section 80C?"
+    "message": "What is tax exemption under Section 80C?",
+    "history": []
   }
   ```
 - **Response Shape**:
@@ -98,7 +99,7 @@ This document details the backend REST API endpoints exposed by the Flask applic
 - **Request Headers**: `Content-Type: multipart/form-data`
 - **Form Data**:
   - `file`: (Binary File - PDF format)
-- **Response Shape (Groq LLM Mode)**:
+- **Response Shape**:
   ```json
   {
     "data": {
@@ -108,5 +109,199 @@ This document details the backend REST API endpoints exposed by the Flask applic
       "tax_deducted_tds": 65000.0,
       "confidence_score": 0.98
     }
+  }
+  ```
+
+---
+
+## 🧠 Multi-Agent Analysis Endpoint
+- **URL**: `/agent`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "query": "Should I invest in NPS or PPF for retirement?"
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "response": "Based on specialized routing, the Retirement Planner advisor recommends..."
+  }
+  ```
+
+---
+
+## 💰 Money Score Evaluation Endpoint
+- **URL**: `/money-score`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "income": 100000.0,
+    "expenses": 40000.0,
+    "savings": 30000.0,
+    "investments": 20000.0,
+    "debt": 10000.0,
+    "emergency": 240000.0
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "score": 85,
+    "status": "Excellent 💚"
+  }
+  ```
+
+---
+
+## 📊 Live Stock Price Endpoint
+- **URL**: `/portfolio`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "stock": "TCS"
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "symbol": "TCS",
+    "price": 3850.5,
+    "currency": "INR"
+  }
+  ```
+
+---
+
+## 💸 Expense Tracker Endpoints
+
+### 1. Add Local Expense
+- **URL**: `/add_expense`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "category": "Food",
+    "amount": 250.0,
+    "date": "2026-06-05"
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "status": "success"
+  }
+  ```
+
+### 2. Fetch Aggregated Expenses
+- **URL**: `/calculate`
+- **Method**: `GET`
+- **Response Shape**:
+  ```json
+  {
+    "total_spend": 250.0,
+    "average_expense": 250.0,
+    "expenses": [
+      {
+        "id": 1,
+        "category": "Food",
+        "amount": 250.0,
+        "date": "2026-06-05"
+      }
+    ]
+  }
+  ```
+
+### 3. Generate Expense Insights
+- **URL**: `/insights`
+- **Method**: `GET`
+- **Response Shape**:
+  ```json
+  {
+    "insights": "<div class=\"insight-card\"><h3>AI Insights</h3><p>Your major spend is Food. Consider reducing dine-outs...</p></div>"
+  }
+  ```
+
+---
+
+## 💎 Net Worth Tracker Endpoints
+
+### 1. Fetch Net Worth Summary
+- **URL**: `/net-worth`
+- **Method**: `GET`
+- **Response Shape**:
+  ```json
+  {
+    "assets": [
+      {
+        "id": 0,
+        "name": "Savings Account",
+        "amount": 50000.0
+      }
+    ],
+    "liabilities": [
+      {
+        "id": 0,
+        "name": "Credit Card",
+        "amount": 5000.0
+      }
+    ],
+    "total_assets": 50000.0,
+    "total_liabilities": 5000.0,
+    "net_worth": 45000.0
+  }
+  ```
+
+### 2. Add Asset
+- **URL**: `/add-asset`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "name": "Gold Mutual Fund",
+    "amount": 20000.0
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "status": "success"
+  }
+  ```
+
+### 3. Add Liability
+- **URL**: `/add-liability`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "name": "Car Loan",
+    "amount": 350000.0
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "status": "success"
+  }
+  ```
+
+### 4. Delete Net Worth Item
+- **URL**: `/delete-item`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "type": "asset",
+    "id": 0
+  }
+  ```
+- **Response Shape**:
+  ```json
+  {
+    "status": "success"
   }
   ```
