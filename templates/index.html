@@ -1700,18 +1700,18 @@
         <div class="card">
           <div class="card-title">Enter your financial details</div>
           <div class="form-grid">
-            <div><label>Monthly Income (₹)</label><input type="number" required min="0" id="s_income"
-                placeholder="e.g. 80000"></div>
-            <div><label>Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses"
-                placeholder="e.g. 40000"></div>
-            <div><label>Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings"
-                placeholder="e.g. 20000"></div>
-            <div><label>Investments (₹)</label><input type="number" required min="0" id="s_invest"
-                placeholder="e.g. 500000"></div>
-            <div><label>Total Debt (₹)</label><input type="number" required min="0" id="s_debt"
-                placeholder="e.g. 100000"></div>
-            <div><label>Emergency Fund (₹)</label><input type="number" required min="0" id="s_emergency"
-                placeholder="e.g. 240000"></div>
+            <div><label for="s_income">Monthly Income (₹)</label><input type="number" required min="0" id="s_income"
+                placeholder="e.g. 80000" aria-label="Monthly Income in Rupees"></div>
+            <div><label for="s_expenses">Monthly Expenses (₹)</label><input type="number" required min="0" id="s_expenses"
+                placeholder="e.g. 40000" aria-label="Monthly Expenses in Rupees"></div>
+            <div><label for="s_savings">Monthly Savings (₹)</label><input type="number" required min="0" id="s_savings"
+                placeholder="e.g. 20000" aria-label="Monthly Savings in Rupees"></div>
+            <div><label for="s_invest">Investments (₹)</label><input type="number" required min="0" id="s_invest"
+                placeholder="e.g. 500000" aria-label="Total Investments in Rupees"></div>
+            <div><label for="s_debt">Total Debt (₹)</label><input type="number" required min="0" id="s_debt"
+                placeholder="e.g. 100000" aria-label="Total Debt in Rupees"></div>
+            <div><label for="s_emergency">Emergency Fund (₹)</label><input type="number" required min="0" id="s_emergency"
+                placeholder="e.g. 240000" aria-label="Emergency Fund in Rupees"></div>
           </div>
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcScore()" id="scoreBtn">Calculate
             Money Score</button>
@@ -1735,14 +1735,14 @@
         <div class="card">
           <div class="card-title">SIP Projection</div>
 
-          <label>Monthly Investment (₹)</label>
-          <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000">
+          <label for="sip_monthly">Monthly Investment (₹)</label>
+          <input type="number" required min="0" id="sip_monthly" placeholder="e.g. 10000" aria-label="SIP Monthly Investment Amount in Rupees">
 
-          <label>Annual Return Rate (%)</label>
-          <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12">
+          <label for="sip_rate">Annual Return Rate (%)</label>
+          <input type="number" required min="0" id="sip_rate" placeholder="e.g. 12" aria-label="SIP Annual Expected Return Rate Percentage">
 
-          <label>Investment Period (Years)</label>
-          <input type="number" required min="0" id="sip_years" placeholder="e.g. 10">
+          <label for="sip_years">Investment Period (Years)</label>
+          <input type="number" required min="0" id="sip_years" placeholder="e.g. 10" aria-label="SIP Investment Duration in Years">
 
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcSIP()" id="sipBtn">
             Calculate
@@ -1769,8 +1769,8 @@
         <div class="card">
           <div class="card-title">Live Stock Price (NSE/Global)</div>
 
-          <label>Stock Symbol</label>
-          <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL">
+          <label for="stockSym">Stock Symbol</label>
+          <input type="text" id="stockSym" placeholder="e.g. TCS, RELIANCE, AAPL" aria-label="Stock Ticker Symbol">
 
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="checkStock()" id="stockBtn">
             Get Price
@@ -1794,8 +1794,8 @@
       <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; align-items: start; max-width: 950px;">
         <div class="card">
           <div class="card-title">Income Tax Calculator (New Regime)</div>
-          <label>Gross Annual Income (₹)</label>
-          <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000">
+          <label for="taxIncome">Gross Annual Income (₹)</label>
+          <input type="number" required min="0" id="taxIncome" placeholder="e.g. 1200000" aria-label="Gross Annual Income in Rupees">
           <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="calcTax()" id="taxBtn">
             Calculate Tax
           </button>
@@ -1813,8 +1813,8 @@
       <div class="page-title">📄 PDF <span>Parser</span></div>
       <div class="card" style="max-width:480px">
         <div class="card-title">Upload Financial Document</div>
-        <label>Select PDF (Form 16, Salary Slip, etc.)</label>
-        <input type="file" id="pdfFile" accept=".pdf" style="margin-top:8px">
+        <label for="pdfFile">Select PDF (Form 16, Salary Slip, etc.)</label>
+        <input type="file" id="pdfFile" accept=".pdf" style="margin-top:8px" aria-label="Upload PDF Document">
         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="uploadPDF()" id="pdfBtn">
           Parse Document
         </button>
@@ -1841,9 +1841,9 @@
             <div class="dot"></div> Insurance Advisor Agent
           </div>
         </div>
-        <label>Your Financial Query</label>
+        <label for="agentQuery">Your Financial Query</label>
         <textarea id="agentQuery" rows="4" placeholder="e.g. Should I invest in NPS or ELSS? I earn ₹12L/year…"
-          style="resize:vertical;margin-top:8px"></textarea>
+          style="resize:vertical;margin-top:8px" aria-label="Financial Query Input"></textarea>
         <button class="btn btn-gold" style="margin-top:16px;width:100%" onclick="runAgent()" id="agentBtn">
           Run Multi-Agent Analysis
         </button>
