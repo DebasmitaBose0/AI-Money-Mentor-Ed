@@ -1,6 +1,16 @@
-# Pytest configuration
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+[project]
+name = "ai-money-mentor"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+dependencies = [
+    "flask",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "joblib"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
