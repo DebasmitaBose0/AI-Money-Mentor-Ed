@@ -13,18 +13,17 @@ import hashlib
 load_dotenv()
 
 # ── Startup validation ───────────────────────────────────────
-# Fail fast and clearly if the required API key is missing.
-# Copy .env.example → .env and set your GROQ_API_KEY.
+# Log a warning to console if API key is missing, enabling offline mode.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+has_groq_key = True
 if not GROQ_API_KEY or GROQ_API_KEY.strip() in ("", "your_groq_api_key_here"):
+    has_groq_key = False
     print(
-        "\n[ERROR] GROQ_API_KEY is not configured.\n"
-        "  1. Copy .env.example to .env\n"
-        "  2. Set your GROQ_API_KEY in .env\n"
-        "  Obtain a free key at: https://console.groq.com/\n",
+        "\n[WARNING] GROQ_API_KEY is not configured.\n"
+        "  AI Chat and AI Insights features will be disabled.\n"
+        "  To enable them, set GROQ_API_KEY in your .env file.\n",
         file=sys.stderr,
     )
-    sys.exit(1)
 # ---------------- IMPORT UTILS ----------------
 from utils.sip import calculate_sip
 from utils.tax import calculate_tax
@@ -49,16 +48,19 @@ with app.app_context():
     db.create_all()
 
 # ---------------- INIT GROQ ----------------
-client = Groq(api_key=GROQ_API_KEY)
+client = None
+if has_groq_key:
+    client = Groq(api_key=GROQ_API_KEY)
+    if os.getenv("FLASK_ENV", "development") != "production":
+        print("[OK] Groq client initialised successfully.")
+else:
+    if os.getenv("FLASK_ENV", "development") != "production":
+        print("[INFO] Offline mode activated (no Groq key).")
 
 # Initialize AI Categorizer
 ai_categorizer = AICategorizer()
-
-# ── Dev-mode startup message ─────────────────────────────────
 if os.getenv("FLASK_ENV", "development") != "production":
-    print("[OK] Groq client initialised successfully.")
     print("[OK] AI Expense Categorizer loaded.")
-
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
@@ -124,6 +126,10 @@ def get_router():
 @app.route("/chat", methods=["POST"])
 def chat():
     """Multi-agent powered chat with specialized financial advisors"""
+    if not client:
+        return jsonify({
+            "reply": "⚠ AI Chat is offline: GROQ_API_KEY is not configured on the server. Please check your setup instructions in the README."
+        })
     try:
         data = request.json
         msg = data.get("message", "")
@@ -138,9 +144,6 @@ def chat():
         
         # Format response with agent info (optional, can be hidden)
         reply = result['response']
-        
-        # Uncomment below to show which agent responded (for debugging)
-        # reply = f"**[{result['agent']} - {result['specialization']}]**\n\n{result['response']}"
         
         return jsonify({
             "reply": reply,
@@ -164,8 +167,6 @@ def agent_stats():
         return jsonify({"success": True, "stats": stats})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-
-
 
 
 # ---------------- 💸 SIP ----------------
@@ -269,6 +270,10 @@ def upload():
 # ---------------- 🧠 MULTI AGENT ----------------
 @app.route("/agent", methods=["POST"])
 def run_agent_route():
+    if not client:
+        return jsonify({
+            "error": "AI Agent is offline: GROQ_API_KEY is not configured on the server."
+        })
     try:
         query = request.json["query"]
         response = run_multi_agent(client, query)
@@ -539,6 +544,13 @@ def calculate():
 @app.route("/insights", methods=["GET"])
 def expense_insights():
     expense_data = [e.to_dict() for e in Expense.query.order_by(Expense.id).all()]
+    if not client:
+        # Calculate standard expenses metrics but return fallback AI insights content
+        totals = calculate_expense(expense_data)
+        return jsonify({
+            "insights": "<div class=\"insight-card\"><h3>AI Insights Offline</h3><p>Personalized AI savings suggestions are currently offline because the GROQ_API_KEY is not configured on the server. Please configure it to enable insights.</p></div>",
+            "summary": totals
+        })
     result = insights(client, expense_data)
     return jsonify(result)
 
@@ -810,6 +822,72 @@ def check_price_alerts():
         return jsonify({"error": str(e)}), 400
 
 
+
+
+# ---------------- 📅 MONTHLY BUDGET PLANNER ----------------
+@app.route("/budget-planner", methods=["GET"])
+def budget_planner():
+    return render_template("index.html")
+
+
+@app.route("/budget-planner/analyze", methods=["POST"])
+def analyze_budget():
+    try:
+        data = request.json
+        income = float(data.get("income", 0))
+        categories = data.get("categories", [])
+
+        if not income or not categories:
+            return jsonify({"error": "Income and categories are required"}), 400
+
+        total_budgeted = sum(float(c.get("budgeted", 0)) for c in categories)
+        total_spent = sum(float(c.get("spent", 0)) for c in categories)
+
+        budget_lines = "\n".join([
+            f"- {c['name']}: Budgeted ₹{c['budgeted']}, Spent ₹{c['spent']} "
+            f"({round(float(c['spent']) / float(c['budgeted']) * 100 if float(c.get('budgeted', 0)) > 0 else 0)}% used)"
+            for c in categories
+        ])
+
+        prompt = (
+            f"You are a personal finance advisor. Analyze this monthly budget:\n\n"
+            f"Monthly Income: ₹{income}\n"
+            f"Total Budgeted: ₹{total_budgeted}\n"
+            f"Total Spent: ₹{total_spent}\n"
+            f"Unallocated / Remaining: ₹{income - total_spent}\n\n"
+            f"Category Breakdown:\n{budget_lines}\n\n"
+            f"Give exactly 4 bullet points of concise, actionable advice:\n"
+            f"• Overall budget health assessment\n"
+            f"• Any category that is over budget or at risk\n"
+            f"• One specific saving tip based on the numbers\n"
+            f"• Recommended savings target for next month"
+        )
+
+        ai_res = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "You are a helpful personal finance advisor. Be concise and specific with numbers."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        advice = ai_res.choices[0].message.content.strip()
+
+        return jsonify({
+            "success": True,
+            "advice": advice,
+            "summary": {
+                "income": income,
+                "total_budgeted": round(total_budgeted, 2),
+                "total_spent": round(total_spent, 2),
+                "remaining": round(income - total_spent, 2),
+                "savings_rate": round((income - total_spent) / income * 100, 1) if income > 0 else 0
+            }
+        })
+
+    except Exception as e:
+        app.logger.error(f"Budget Planner Error: {str(e)}")
+        return jsonify({"error": str(e)}), 400
 
 
 # ---------------- RUN ----------------
