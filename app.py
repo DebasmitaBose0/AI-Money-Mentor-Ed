@@ -35,7 +35,10 @@ app = Flask(__name__)
 # ---------------- INIT DATABASE ----------------
 from models import db, Expense, Asset, Liability
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///money_mentor.db"
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_dir = os.path.join(basedir, "instance")
+os.makedirs(db_dir, exist_ok=True)
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(db_dir, 'money_mentor.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
