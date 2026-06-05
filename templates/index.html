@@ -1462,12 +1462,34 @@
       height: 220px !important;
     }
 
-    .chart-wrap {
-      width: 100%;
-      height: 280px;
-      max-height: 280px;
-      overflow: hidden;
-      position: relative;
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8) translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+      cursor: pointer;
+    }
+
+    #scrollTopBtn.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+    }
+
+    #scrollTopBtn:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212, 168, 67, 0.4);
     }
   </style>
 </head>
@@ -1982,23 +2004,16 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Scroll to Top Button -->
-  <button id="scrollTopBtn" onclick="document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'})"
-    style="display:none; position:fixed; bottom:30px; right:30px; z-index:100; border-radius:50%; width:44px; height:44px; font-size:20px; align-items:center; justify-content:center;"
-    class="btn btn-gold">↑</button>
-
-  </div><!-- /main -->
-
-  <!-- Loading charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <button id="scrollTopBtn" onclick="document.querySelector('.main').scrollTo({top: 0, behavior: 'smooth'})" class="btn btn-gold">↑</button>
 
   <script>
     // Scroll to Top visibility toggle
     document.querySelector('.main').addEventListener('scroll', function () {
       const btn = document.getElementById('scrollTopBtn');
       if (this.scrollTop > 300) {
-        btn.style.display = 'flex';
+        btn.classList.add('visible');
       } else {
-        btn.style.display = 'none';
+        btn.classList.remove('visible');
       }
     });
 
