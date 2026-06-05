@@ -9,18 +9,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Startup validation ───────────────────────────────────────
-# Fail fast and clearly if the required API key is missing.
-# Copy .env.example → .env and set your GROQ_API_KEY.
+from utils.env_validator import validate_environment
+validate_environment()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY or GROQ_API_KEY.strip() in ("", "your_groq_api_key_here"):
-    print(
-        "\n[ERROR] GROQ_API_KEY is not configured.\n"
-        "  1. Copy .env.example to .env\n"
-        "  2. Set your GROQ_API_KEY in .env\n"
-        "  Obtain a free key at: https://console.groq.com/\n",
-        file=sys.stderr,
-    )
-    sys.exit(1)
+
 # ---------------- IMPORT UTILS ----------------
 from utils.sip import calculate_sip
 from utils.tax import calculate_tax
@@ -43,11 +35,14 @@ with app.app_context():
     db.create_all()
 
 # ---------------- INIT GROQ ----------------
-client = Groq(api_key=GROQ_API_KEY)
+client = None
+if GROQ_API_KEY and GROQ_API_KEY.strip() not in ("", "your_groq_api_key_here"):
+    client = Groq(api_key=GROQ_API_KEY)
 
 # ── Dev-mode startup message ─────────────────────────────────
-if os.getenv("FLASK_ENV", "development") != "production":
+if client and os.getenv("FLASK_ENV", "development") != "production":
     print("[OK] Groq client initialised successfully.")
+
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
