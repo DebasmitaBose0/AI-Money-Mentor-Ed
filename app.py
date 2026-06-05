@@ -5,8 +5,9 @@ import sys
 from groq import Groq
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (if present)
-load_dotenv()
+if "pytest" not in sys.modules:
+    load_dotenv()
+
 
 # ── Startup validation ───────────────────────────────────────
 from utils.env_validator import validate_environment
@@ -367,13 +368,3 @@ if __name__ == "__main__":
     debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "yes")
 
     app.run(debug=debug_mode)
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-    app.run(debug=debug_mode)
-
