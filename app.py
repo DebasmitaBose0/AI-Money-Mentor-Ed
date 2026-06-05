@@ -5,22 +5,12 @@ import sys
 from groq import Groq
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (if present)
-load_dotenv()
+if "pytest" not in sys.modules:
+    load_dotenv()
 
 # ── Startup validation ───────────────────────────────────────
-# Fail fast and clearly if the required API key is missing.
-# Copy .env.example → .env and set your GROQ_API_KEY.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY or GROQ_API_KEY.strip() in ("", "your_groq_api_key_here"):
-    print(
-        "\n[ERROR] GROQ_API_KEY is not configured.\n"
-        "  1. Copy .env.example to .env\n"
-        "  2. Set your GROQ_API_KEY in .env\n"
-        "  Obtain a free key at: https://console.groq.com/\n",
-        file=sys.stderr,
-    )
-    sys.exit(1)
+
 # ---------------- IMPORT UTILS ----------------
 from utils.sip import calculate_sip
 from utils.tax import calculate_tax
@@ -43,10 +33,12 @@ with app.app_context():
     db.create_all()
 
 # ---------------- INIT GROQ ----------------
-client = Groq(api_key=GROQ_API_KEY)
+client = None
+if GROQ_API_KEY and GROQ_API_KEY.strip() not in ("", "your_groq_api_key_here"):
+    client = Groq(api_key=GROQ_API_KEY)
 
 # ── Dev-mode startup message ─────────────────────────────────
-if os.getenv("FLASK_ENV", "development") != "production":
+if client and os.getenv("FLASK_ENV", "development") != "production":
     print("[OK] Groq client initialised successfully.")
 # ---------------- HOME ----------------
 @app.route("/")
@@ -101,29 +93,20 @@ def internal_server_error(error):
 # ---------------- 🤖 AI CHAT ----------------
 @app.route("/chat", methods=["POST"])
 def chat():
+    if not client:
+        return jsonify({
+            "reply": "⚠ AI Chat is offline: GROQ_API_KEY is not configured on the server. Please check your setup instructions in the README to configure your GROQ_API_KEY."
+        })
     try:
         data = request.json
         msg = data.get("message")
         history = data.get("history", [])
 
         # Build messages: system prompt + last 10 history turns + current message
-        messages = [{"role": "system", "content": "You are a financial advisor for India."}]
-        messages += history[-10:]
-        messages.append({"role": "user", "content": msg})
-
-        res = client.chat.completions.create(
-
-    model="llama-3.1-8b-instant",
-    messages=[
-        {
-            "role": "system",
-            "content": """
-You are an expert AI financial advisor for Indian users.
-
-            model="llama-3.1-8b-instant",
-            messages=messages
-        )
-
+        messages = [
+            {
+                "role": "system",
+                "content": """You are an expert AI financial advisor for Indian users.
 
 Your job:
 - Help users manage money smartly
@@ -146,12 +129,16 @@ Advice:
 - Keep it simple and actionable
 
 Tone:
-- Friendly, practical, and easy to understand
-"""
-        },
-        {"role": "user", "content": msg}
-    ]
-)
+- Friendly, practical, and easy to understand"""
+            }
+        ]
+        messages += history[-10:]
+        messages.append({"role": "user", "content": msg})
+
+        res = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages
+        )
         return jsonify({
             "reply": res.choices[0].message.content
         })
@@ -162,6 +149,7 @@ Tone:
         return jsonify({
             "reply": "Unable to generate a response at the moment. Please try again later."
         }), 500
+
 
 
 # ---------------- 💸 SIP ----------------
@@ -234,6 +222,10 @@ def upload():
 # ---------------- 🧠 MULTI AGENT ----------------
 @app.route("/agent", methods=["POST"])
 def run_agent_route():
+    if not client:
+        return jsonify({
+            "error": "AI Agent is offline: GROQ_API_KEY is not configured on the server."
+        })
     try:
         query = request.json["query"]
         response = run_multi_agent(client, query)
@@ -241,6 +233,7 @@ def run_agent_route():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 
 # ---------------- 💰 MONEY SCORE ----------------
@@ -304,6 +297,13 @@ def calculate():
 @app.route("/insights", methods=["GET"])
 def expense_insights():
     expense_data = [e.to_dict() for e in Expense.query.order_by(Expense.id).all()]
+    if not client:
+        # Calculate standard expenses metrics but return fallback AI insights content
+        totals = calculate_expense(expense_data)
+        return jsonify({
+            "insights": "<div class=\"insight-card\"><h3>AI Insights Offline</h3><p>Personalized AI savings suggestions are currently offline because the GROQ_API_KEY is not configured on the server. Please configure it to enable insights.</p></div>",
+            "summary": totals
+        })
     result =insights(client,expense_data)
     return jsonify(result)
 
